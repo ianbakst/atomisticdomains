@@ -2,14 +2,192 @@ import numpy as np
 from math import *
 import time
 import os
+
+def bjs(l,c):
+	"""
+	Computes Bjs matrix for a defect in a given anisotropic medium
+	:param l: line direction of defect
+	:param c: 4th order elastic tensor
+	:return: Bjs matrix
+	"""
+	if len(l) == 4:
+		l = mbvector(l)
+	elif len(l) == 3:
+		pass
+	else:
+		return (0)
+	v = np.array([1,pi,e])
+	r = l/np.linalg.norm(l)
+	m = np.cross(r,v)
+	n = np.cross(r,m)
+	m = m/np.linalg.norm(m)
+	n = n/np.linalg.norm(n)
+	w = np.arange(0,2*pi,0.001)
+	s = len(w)
+
+	mm = vect_contract(m,c,m)
+	mn = vect_contract(m,c,n)
+	nm = vect_contract(n,c,m)
+	nn0 = vect_contract(n,c,n)
+	nn = np.linalg.inv(nn0)
+
+	val1 = mm-np.dot(np.dot(mn,nn),nm)
+	R = BB = np.zeros(shape=(3,3))
+	for i in range(1,s):
+		t = 1-cos(w[i])
+		CO = cos(w[i])
+		SI = sin(w[i])
+		R[0,0] = t*r[0]**2 + CO
+		R[0,1] = t*r[0]*r[1] - SI*r[2]
+		R[0,2] = t*r[0]*r[2] + SI*r[1]
+		R[1,0] = t*r[0]*r[1]+SI*r[2]
+		R[1,1] = t*r[1]**2 + CO
+		R[1,2] = t*r[1]*r[2] - SI*r[0]
+		R[2,0] = t*r[0]*r[2] - SI*r[1]
+		R[2,1] = t*r[1]*r[2] + SI*r[0]
+		R[2,2] = t*r[2]**2 + CO
+
+		mr = np.dot(R,np.transpose(m))
+		nr = np.dot(R,np.transpose(n))
+
+		mm = vect_contract(mr,c,mr)
+		mn = vect_contract(mr,c,nr)
+		nm = vect_contract(nr,c,mr)
+		nn0 = vect_contract(nr,c,nr)
+		nn = np.linalg.inv(nn0)
+		val2 = mm - np.dot(np.dot(mn,nn),nm)
+		BB = BB + 0.5*(val2 + val1)*(w[i] - w[i-1])
+		val1 = val2
+	B = BB/(8*pi**2)
+	return (B)
+
+def Cijkl(C):
+	"""
+	Populates 4D elastic tensor from 6x6 elastic tensor
+	:param C: 6x6 elastic constants tensor
+	:return: 3x3x3x3 elastic Cijkl tensor
+	"""
+	c=np.zeros(shape=(3,3,3,3))
+	CC=np.zeros(shape=(9,9))
+	CC[0:6,0:6]=C[0:6,0:6]
+	CC[6:9,6:9]=C[3:6,3:6]
+	CC[0:6,6:9]=C[0:6,3:6]
+	CC[6:9,0:6]=C[3:6,0:6]
+
+	c[0,0,0,0]=CC[0,0]
+	c[0,0,1,1]=CC[0,1]
+	c[0,0,2,2]=CC[0,2]
+	c[0,0,1,2]=CC[0,3]
+	c[0,0,2,0]=CC[0,4]
+	c[0,0,0,1]=CC[0,5]
+	c[0,0,2,1]=CC[0,6]
+	c[0,0,0,2]=CC[0,7]
+	c[0,0,1,0]=CC[0,8]
+
+	c[1,1,0,0]=CC[1,0]
+	c[1,1,1,1]=CC[1,1]
+	c[1,1,2,2]=CC[1,2]
+	c[1,1,1,2]=CC[1,3]
+	c[1,1,2,0]=CC[1,4]
+	c[1,1,0,1]=CC[1,5]
+	c[1,1,2,1]=CC[1,6]
+	c[1,1,0,2]=CC[1,7]
+	c[1,1,1,0]=CC[1,8]
+
+	c[2,2,0,0]=CC[2,0]
+	c[2,2,1,1]=CC[2,1]
+	c[2,2,2,2]=CC[2,2]
+	c[2,2,1,2]=CC[2,3]
+	c[2,2,2,0]=CC[2,4]
+	c[2,2,0,1]=CC[2,5]
+	c[2,2,2,1]=CC[2,6]
+	c[2,2,0,2]=CC[2,7]
+	c[2,2,1,0]=CC[2,8]
+
+	c[1,2,0,0]=CC[3,0]
+	c[1,2,1,1]=CC[3,1]
+	c[1,2,2,2]=CC[3,2]
+	c[1,2,1,2]=CC[3,3]
+	c[1,2,2,0]=CC[3,4]
+	c[1,2,0,1]=CC[3,5]
+	c[1,2,2,1]=CC[3,6]
+	c[1,2,0,2]=CC[3,7]
+	c[1,2,1,0]=CC[3,8]
+
+	c[2,0,0,0]=CC[4,0]
+	c[2,0,1,1]=CC[4,1]
+	c[2,0,2,2]=CC[4,2]
+	c[2,0,1,2]=CC[4,3]
+	c[2,0,2,0]=CC[4,4]
+	c[2,0,0,1]=CC[4,5]
+	c[2,0,2,1]=CC[4,6]
+	c[2,0,0,2]=CC[4,7]
+	c[2,0,1,0]=CC[4,8]
+
+	c[0,1,0,0]=CC[5,0]
+	c[0,1,1,1]=CC[5,1]
+	c[0,1,2,2]=CC[5,2]
+	c[0,1,1,2]=CC[5,3]
+	c[0,1,2,0]=CC[5,4]
+	c[0,1,0,1]=CC[5,5]
+	c[0,1,2,1]=CC[5,6]
+	c[0,1,0,2]=CC[5,7]
+	c[0,1,1,0]=CC[5,8]
+
+	c[2,1,0,0]=CC[6,0]
+	c[2,1,1,1]=CC[6,1]
+	c[2,1,2,2]=CC[6,2]
+	c[2,1,1,2]=CC[6,3]
+	c[2,1,2,0]=CC[6,4]
+	c[2,1,0,1]=CC[6,5]
+	c[2,1,2,1]=CC[6,6]
+	c[2,1,0,2]=CC[6,7]
+	c[2,1,1,0]=CC[6,8]
+
+	c[0,2,0,0]=CC[7,0]
+	c[0,2,1,1]=CC[7,1]
+	c[0,2,2,2]=CC[7,2]
+	c[0,2,1,2]=CC[7,3]
+	c[0,2,2,0]=CC[7,4]
+	c[0,2,0,1]=CC[7,5]
+	c[0,2,2,1]=CC[7,6]
+	c[0,2,0,2]=CC[7,7]
+	c[0,2,1,0]=CC[7,8]
+
+	c[1,0,0,0]=CC[8,0]
+	c[1,0,1,1]=CC[8,1]
+	c[1,0,2,2]=CC[8,2]
+	c[1,0,1,2]=CC[8,3]
+	c[1,0,2,0]=CC[8,4]
+	c[1,0,0,1]=CC[8,5]
+	c[1,0,2,1]=CC[8,6]
+	c[1,0,0,2]=CC[8,7]
+	c[1,0,1,0]=CC[8,8]
+	return (c)
+
+def cubeCij(c11,c13,c44):
+	"""
+	Populates 6x6 elastic tensor for cubic crystals
+	:param c11:
+	:param c13:
+	:param c44:
+	:return: 6x6 elastic stiffness tensor
+	"""
+	C=np.zeros(shape=(6,6))
+	C[0,0]=C[1,1]=C[2,2]=c11
+	C[0,1]=C[0,2]=C[1,0]=C[1,2]=C[2,0]=C[2,1]=c13
+	C[3,3]=C[4,4]=C[5,5]=c44
+	S=np.linalg.inv(C)
+	return {'C':C,'S':S}
+
 def mbplane(A,c=sqrt(8/3)):
-	"""
-	Converts Miller-Bravais plane indices to cartesian normal vectors
-	:param A:
-	:param c:
-	:return:
-	"""
-	#for Sun Mg Potential: c=1.6281689374348
+    """
+    Converts Miller-Bravais plane indices to cartesian normal vectors
+    :param A:
+    :param c:
+    :return:
+    """
+    #for Sun Mg Potential: c=1.6281689374348
 	if A[0]==0 and A[1]==0 and A[2]==0:
 		B=np.array([0,0,1])
 

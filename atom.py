@@ -2,6 +2,8 @@ import numpy as np
 from math import *
 import time
 import os
+from base import *
+
 class atom:
 	"""
     The class "atom" defines atom objects which have the attributes:
@@ -15,11 +17,14 @@ class atom:
 		self.id=id
 		self.element=element
 		self.pos=pos
-		self.mag_mom=mag_mom
+		self.rpos=rpos
+		self.vel=vel
+		self.mag=mag
 		self.dyn=dyn
 		return
 
-	def change_dyn(self,new_dyn=['T','T','T']):
+
+	def set_dyn(self,new_dyn=['T','T','T']):
 		"""
 		Changes dynamics associated with atom (for vasp structures)
         :param new_dyn: New dynamics specifications
@@ -28,7 +33,7 @@ class atom:
 		self.dyn=new_dyn
 		return
 
-	def change_element(self,new_element):
+	def set_element(self,new_element):
 		"""
 		Changes chemical element of atom
         :param new_element: new element
@@ -37,7 +42,7 @@ class atom:
 		self.element=new_element
 		return
 
-	def change_id(self,new_id=0):
+	def set_id(self,new_id=0):
 		"""
 		Changes or assigns a new atom ID to an atom.
         :param new_id: new atom id
@@ -46,7 +51,7 @@ class atom:
 		self.id=new_id
 		return
 
-	def change_pos(self,new_pos=np.zeros(shape=(1,3))):
+	def set_pos(self,new_pos=np.zeros(shape=(1,3))):
 		"""
 		Changes or updates atomic position to new specified atomic position.
         :param new_pos: new atomic position
@@ -54,6 +59,15 @@ class atom:
         """
 		self.pos=new_pos
 		return
+	def set_rpos(self,new_pos=np.zeros(shape=(1,3))):
+		"""
+		Changes or updates atomic position to new specified atomic position.
+        :param new_pos: new atomic position
+        :return: none
+        """
+		self.rpos=new_pos
+		return
+
 	def displace(self,displacement=np.zeros(shape=(1,3))):
 		"""
         Displace an atom by certain values. Default is (0,0,0)
