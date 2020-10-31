@@ -12,6 +12,17 @@ from math import *
 import time
 import os
 
+ x = np.array([1,0,0])
+y = np.array([0,1,0])
+>>> z = np.array([0,0,1])
+>>> a1 = ad.Atom(id=0,position = np.array([0.5,0.5,0.5])
+... )
+>>> a2 = ad.Atom(id=1,position = np.array([0.75,0.75,0.75]))
+
+
+
+
+
 class vasp:
 	"""
 	The class "vasp" defines methods which manipulate VASP structures.

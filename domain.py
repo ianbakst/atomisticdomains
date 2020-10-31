@@ -1,16 +1,17 @@
 import numpy as np
 from math import *
 import time
+from typing import List
 import os
-from .base import *
-from .atom import atom
-from .lattice import lattice
+from atomistic_domains.atom import Atom
+from atomistic_domains.lattice import Lattice
 from .elastic import elastic
 
-class domain:
-    """
-    The class "domain" defines methods which manipulate atomistic domain structures.
-    Domain structures have the attributes:
+
+class Domain:
+	"""
+	The class "domain" defines methods which manipulate atomistic domain structures.
+	Domain structures have the attributes:
 	:param box: High and low coordinates of simulation box boundaries. (3x2 array)
 	:param chem: list of chemical elements
 	:param num_el: number of element
@@ -22,32 +23,78 @@ class domain:
 	:param z: crystallographic direction of the positive z-axis
 	:param p: periodicity of simulation domain
 	"""
-	def __init__(self,box=np.zeros(shape=(3,2)),chem=[],atoms=[],num_atoms={},x=np.zeros(shape=(1,3)),y=np.zeros(shape=(1,3)),z=np.zeros(shape=(1,3)),p=0):
-		self.box = box
-		self.atoms = atoms
-		self.tot_atoms = len(atoms)
-		self.chem = chem
-		self.num_el = len(chem)
-		self.num_atoms = num_atoms
-		self.x = x
-		self.y = y
-		self.z = z
-		self.p = p
+	def __init__(
+			self,
+			atoms: List[Atom] = None,
+			x_vector: np.ndarray = np.zeros(shape=(1, 3)),
+			y_vector: np.ndarray = np.zeros(shape=(1, 3)),
+			z_vector: np.ndarray = np.zeros(shape=(1, 3)),
+			boundary_conditions: dict = None,
+	):
+		if not atoms:
+			self.atoms = []
+		else:
+			self.atoms = atoms
+
+		self.x_vector = x_vector
+		self.y_vector = y_vector
+		self.z_vector = z_vector
+		if not boundary_conditions:
+			self.boundary_conditions = {
+				"x_boundary": "p",
+				"y_boundary": "p",
+				"z_boundary": "p",
+			}
+		else:
+			self.boundary_conditions = boundary_conditions
 		return
 
-	def add(self,domain2):
-		"""
-        Add a second domain to the current domain. The resulting domain will
-        consist of a box with the shape of the current domain which is large
-        enough to encompass both domains.
-		:param domain2:
-		:return:
-		"""
-		return
 
-	def create(self, lattice, lx, ly, lz, x=np.zeros(shape=(1,3)),
-               y=np.zeros(shape=(1,3)), z=np.zeros(shape=(1,3)), p=0,
-               origin=np.zeros(shape=(1,3))):
+	def create_from_lattice(
+			self,
+			lattice: Lattice,
+			nx: int = 1,
+			ny: int = 1,
+			nz: int = 1,
+			boundary_conditions: dict = None,
+
+	):
+		atoms = []
+		for i in range(nx):
+			for j in range(ny):
+				for k in range(nz):
+					displacement = i * lattice.x_vector + j * lattice.y_vector + k * lattice.z_vector
+					atoms.extend([atom.displace(displacement) for atom in lattice.basis_atoms])
+
+		x_vector = nx * lattice.x_vector
+		y_vector = ny * lattice.y_vector
+		z_vector = nz * lattice.z_vector
+		return self.create(
+			atoms=atoms,
+			x_vector=x_vector,
+			y_vector=y_vector,
+			z_vector=z_vector,
+			boundary_conditions=boundary_conditions,
+		)
+
+	def create(
+			self,
+			atoms: List[Atom] = None,
+			x_vector: np.ndarray = np.zeros(shape=(1, 3)),
+		   	y_vector: np.ndarray = np.zeros(shape=(1, 3)),
+		   	z_vector: np.ndarray = np.zeros(shape=(1, 3)),
+		   	boundary_conditions: dict = None,
+	):
+
+		return Domain(
+			atoms=atoms,
+			x_vector=x_vector,
+			y_vector=y_vector,
+			z_vector=z_vector,
+			boundary_conditions=boundary_conditions,
+		)
+
+
 		"""
 		Creates an orthorhombic, single-crystal domain based on a specified lattice, dimensions, and orientation.
 		:param lattice: Repeatable lattice on which the domain will be based. (see class "lattice")
@@ -60,7 +107,7 @@ class domain:
 		:param p: perodicity of the simulation domain
 		:param origin: global coordinates of the center of the box
 		:return: none
-		"""
+		
 		self.p=p
 
 		# Define global reference axes
@@ -290,14 +337,14 @@ class domain:
 
 	def shift(self, cut=0.0, dx=0.0, dy=0.0, dz=0.0, plane='z'):
 		"""
-        Shifts atoms above a specified plane by specified displacements. Useful for generating GSF curves.
-        :param cut: Height of plane above which atoms will be displaced
-        :param dx: Distance atoms will be moved in x-direction
-        :param dy: Distance atoms will be moved in y-direction
-        :param dz: Distance atoms will be moved in z-direction
-        :param plane: Plane above which atoms will be displaced
-        :return: New vasp object with updated coordinates.
-        """
+		Shifts atoms above a specified plane by specified displacements. Useful for generating GSF curves.
+		:param cut: Height of plane above which atoms will be displaced
+		:param dx: Distance atoms will be moved in x-direction
+		:param dy: Distance atoms will be moved in y-direction
+		:param dz: Distance atoms will be moved in z-direction
+		:param plane: Plane above which atoms will be displaced
+		:return: New vasp object with updated coordinates.
+		"""
 		new = copy.deepcopy(self)
 		if plane == 'x' or plane == 'X':
 			for i in range(self.tot_atoms):
@@ -320,8 +367,8 @@ class domain:
 		return (new)
 
 	def subtract(self,shape):
-	    """
-        Removes atoms from domain where the domain overlaps shape.
+		"""
+		Removes atoms from domain where the domain overlaps shape.
 		:param shape: Shape within which atoms will be removed.
 		:return: NONE
 		"""
@@ -329,12 +376,12 @@ class domain:
 
 	def writeposcar(self, filename, comment='Structure', ptype='Direct'):
 		"""
-        Writes domain object to POSCAR
-        :param filename: name of POSCAR to be written
-        :param comment: Opening line comment
-        :param ptype: POSCAR type, based on dynamics
-        :return: NONE
-        """
+		Writes domain object to POSCAR
+		:param filename: name of POSCAR to be written
+		:param comment: Opening line comment
+		:param ptype: POSCAR type, based on dynamics
+		:return: NONE
+		"""
 		a = self.box[0,1] - self.box[0,0]
 		b = self.box[1,1] - self.box[1,0]
 		c = self.box[2,1] - self.box[2,0]
@@ -668,7 +715,7 @@ class domain:
 		return (B)
 
 	def remap(A,B,box,p=7,idA=0,idB=0):
-		"""
+		
 		Remaps atom positions of 'B' which may have been remapped by LAMMPS across periodic boundary conditions.
 		Useful for expanding simulation boxes of NEB simulations.
 		:param A:
@@ -678,7 +725,7 @@ class domain:
 		:param idA:
 		:param idB:
 		:return:
-		"""
+		
 		sA=A.shape
 		sB=B.shape
 		if sA[0]==sB[0]:
@@ -770,3 +817,4 @@ class domain:
 			else:
 				pass
 		return{'A':Apos,'B':Bpos}
+"""

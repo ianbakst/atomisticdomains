@@ -1,11 +1,11 @@
 import numpy as np
-from math import *
 import time
 import os
-from base import *
-from atom import atom
+from atomistic_domains import Atom
+from typing import List
 
-class lattice:
+
+class Lattice:
 	"""
     The class "lattice" defines methods which manipulate lattice structures.
     Lattice structures have the following attributes:
@@ -18,18 +18,22 @@ class lattice:
     :param num_atoms: number of atoms per each element (dictionary type)
     :param tot_atoms: Total number of atoms in unit cell
     """
-	def __init__(self,basis_atoms=[],chem=[],num_atoms={},type='Undefined',
-				 box=np.zeros(shape=(3,3))):
-		self.type = type
-		self.box = box
-		self.basis_atoms = basis_atoms
-		self.chem = chem
-		self.num_el = len(self.chem)
-		self.num_atoms = num_atoms
-		self.tot_atoms = 0
-		for i in range(self.num_el):
-			self.tot_atoms += self.num_atoms[self.chem[i]]
+	def __init__(
+			self,
+			x_vector: np.ndarray = np.zeros(shape=(1,3)),
+			y_vector: np.ndarray = np.zeros(shape=(1,3)),
+			z_vector: np.ndarray = np.zeros(shape=(1,3)),
+			basis_atoms: List[Atom] = None,
+	):
+		self.x_vector = x_vector
+		self.y_vector = y_vector
+		self.z_vector = z_vector
+		if not basis_atoms:
+			basis_atoms = []
+		else:
+			self.basis_atoms = basis_atoms
 		return
+
 
 	def add_atom(self,new_atom):
 		"""

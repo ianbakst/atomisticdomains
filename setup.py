@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="atomistic-domain-playground", # Replace with your own username
+    name="atomistic_domains", # Replace with your own username
     version="0.0.1",
     author="Ian N. Bakst, Ph.D.",
     author_email="ian.n.bakst@gmail.com",
