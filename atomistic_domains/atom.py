@@ -2,6 +2,7 @@ import numpy as np
 from math import *
 import time
 import os
+from copy import deepcopy
 
 class Atom:
 	"""
@@ -80,3 +81,12 @@ class Atom:
 	def set_magmom(self, new_magnetic_moment: np.ndarray = np.zeros(shape=(1,3))):
 		self.magnetic_moment = new_magnetic_moment
 		return
+
+
+def displace_and_add(
+		atom: Atom,
+		displacement: np.ndarray = np.zeros(shape=(1,3)),
+) -> Atom:
+	new_atom = deepcopy(atom)
+	new_atom.displace(displacement)
+	return new_atom

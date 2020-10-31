@@ -1,8 +1,6 @@
 import numpy as np
-import time
 from typing import List
-import os
-from atomistic_domains.atom import Atom
+from atomistic_domains.atom import Atom, displace_and_add
 from atomistic_domains.lattice import Lattice
 from copy import deepcopy
 
@@ -49,47 +47,39 @@ class Domain:
 		return
 
 
-	def create_from_lattice(
-			self,
-			lattice: Lattice,
-			nx: int = 1,
-			ny: int = 1,
-			nz: int = 1,
-			boundary_conditions: dict = None,
+def create_from_lattice(
+		lattice: Lattice,
+		nx: int = 1,
+		ny: int = 1,
+		nz: int = 1,
+		boundary_conditions: dict = None,
+):
+	atoms = []
+	for i in range(nx):
+		for j in range(ny):
+			for k in range(nz):
+				displacement = i * lattice.x_vector + j * lattice.y_vector + k * lattice.z_vector
+				atoms.extend([displace_and_add(atom,displacement) for atom in lattice.basis_atoms])
+	return create(
+		atoms=atoms,
+		x_vector=nx*lattice.x_vector,
+		y_vector=ny*lattice.y_vector,
+		z_vector=nz * lattice.z_vector,
+		boundary_conditions=boundary_conditions,
+	)
 
-	):
-		atoms = []
-		for i in range(nx):
-			for j in range(ny):
-				for k in range(nz):
-					displacement = i * lattice.x_vector + j * lattice.y_vector + k * lattice.z_vector
-					lat_atoms = deepcopy(lattice.basis_atoms)
-					atoms.extend([deepcopy(atom.displace(displacement=displacement)) for atom in lat_atoms])
+def create(
+		atoms: List[Atom] = None,
+		x_vector: np.ndarray = np.zeros(shape=(1, 3)),
+		y_vector: np.ndarray = np.zeros(shape=(1, 3)),
+		z_vector: np.ndarray = np.zeros(shape=(1, 3)),
+		boundary_conditions: dict = None,
+):
 
-		x_vector = nx * lattice.x_vector
-		y_vector = ny * lattice.y_vector
-		z_vector = nz * lattice.z_vector
-		return self.create(
-			atoms=atoms,
-			x_vector=x_vector,
-			y_vector=y_vector,
-			z_vector=z_vector,
-			boundary_conditions=boundary_conditions,
-		)
-
-	def create(
-			self,
-			atoms: List[Atom] = None,
-			x_vector: np.ndarray = np.zeros(shape=(1, 3)),
-		   	y_vector: np.ndarray = np.zeros(shape=(1, 3)),
-		   	z_vector: np.ndarray = np.zeros(shape=(1, 3)),
-		   	boundary_conditions: dict = None,
-	):
-
-		return Domain(
-			atoms=atoms,
-			x_vector=x_vector,
-			y_vector=y_vector,
-			z_vector=z_vector,
-			boundary_conditions=boundary_conditions,
-		)
+	return Domain(
+		atoms=atoms,
+		x_vector=x_vector,
+		y_vector=y_vector,
+		z_vector=z_vector,
+		boundary_conditions=boundary_conditions,
+	)
