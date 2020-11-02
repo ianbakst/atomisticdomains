@@ -1,7 +1,4 @@
 import numpy as np
-from math import *
-import time
-import os
 
 
 class Atom:

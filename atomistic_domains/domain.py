@@ -2,7 +2,6 @@ import numpy as np
 from typing import List
 from atomistic_domains.atom import Atom, displace_and_add
 from atomistic_domains.lattice import Lattice
-from copy import deepcopy
 
 
 class Domain:

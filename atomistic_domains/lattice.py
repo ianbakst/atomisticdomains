@@ -1,9 +1,6 @@
 import numpy as np
-from math import *
-import time
-import os
-from atomistic_domains import Atom
 from typing import List
+from atomistic_domains import Atom
 
 
 class Lattice:
