@@ -19,16 +19,16 @@ class Lattice:
 
     def __init__(
         self,
-        x_vector: np.ndarray = np.zeros(shape=(1, 3)),
-        y_vector: np.ndarray = np.zeros(shape=(1, 3)),
-        z_vector: np.ndarray = np.zeros(shape=(1, 3)),
+        x_vector: np.ndarray = np.zeros(shape=(1, 3), dtype=float),
+        y_vector: np.ndarray = np.zeros(shape=(1, 3), dtype=float),
+        z_vector: np.ndarray = np.zeros(shape=(1, 3), dtype=float),
         basis_atoms: List[Atom] = None,
     ):
         self.x_vector = x_vector
         self.y_vector = y_vector
         self.z_vector = z_vector
         if not basis_atoms:
-            basis_atoms = []
+            self.basis_atoms = []
         else:
             self.basis_atoms = basis_atoms
         return

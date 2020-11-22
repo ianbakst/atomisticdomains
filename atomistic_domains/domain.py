@@ -2,6 +2,7 @@ import numpy as np
 from typing import List
 from atomistic_domains.atom import Atom, displace_and_add
 from atomistic_domains.lattice import Lattice
+import pandas as pd
 
 
 class Domain:
@@ -23,9 +24,9 @@ class Domain:
     def __init__(
         self,
         atoms: List[Atom] = None,
-        x_vector: np.ndarray = np.zeros(shape=(1, 3)),
-        y_vector: np.ndarray = np.zeros(shape=(1, 3)),
-        z_vector: np.ndarray = np.zeros(shape=(1, 3)),
+        x_vector: np.ndarray = np.zeros(shape=(1, 3), dtype=float),
+        y_vector: np.ndarray = np.zeros(shape=(1, 3), dtype=float),
+        z_vector: np.ndarray = np.zeros(shape=(1, 3), dtype=float),
         boundary_conditions: dict = None,
     ):
         if not atoms:
@@ -46,6 +47,50 @@ class Domain:
             self.boundary_conditions = boundary_conditions
         return
 
+    def write_poscar(
+            self,
+            file_name: str,
+            comment: str = 'Structure',
+            scale: float = 1.0,
+            selective_dynamics: bool = False,
+            direct: bool = True,
+    ):
+        r = [{'element': atom.element, 'position': atom.position, 'velocity': atom.velocity} for atom in self.atoms]
+        df = pd.DataFrame(r)
+        with open(file_name, 'w') as f:
+            f.write(f"{comment}\n")
+            f.write(f"{scale}\n")
+            for vec in (self.x_vector, self.y_vector, self.z_vector):
+                f.write(f"{' '.join([str(float(i)) for i in vec])}\n")
+
+            element_list = df.element.unique()
+
+            for el in element_list:
+                f.write(f" {el}")
+            f.write("\n")
+
+            for el in element_list:
+                f.write(f" {len(df[df.element == el])}")
+            f.write("\n")
+
+            if selective_dynamics:
+                f.write('Selective Dynamics\n')
+
+            f.write('Direct\n') if direct else f.write('Cartesian\n')
+
+            for el in element_list:
+                for _, row in df[df.element == el].iterrows():
+                    pos = fractionalize(row.position) if direct else row.position
+                    f.write(f"{' '.join([str(float(i)) for i in pos])}\n")
+                    if selective_dynamics:
+                        f.write("")
+                    f.write("\n")
+        return
+
+
+    def fractionalize(self, position: np.ndarray) -> np.ndarray:
+        
+
 
 def create_from_lattice(
     lattice: Lattice,
@@ -53,7 +98,7 @@ def create_from_lattice(
     ny: int = 1,
     nz: int = 1,
     boundary_conditions: dict = None,
-):
+) -> Domain:
     atoms = []
     for i in range(nx):
         for j in range(ny):
@@ -77,7 +122,7 @@ def create(
     y_vector: np.ndarray = np.zeros(shape=(1, 3)),
     z_vector: np.ndarray = np.zeros(shape=(1, 3)),
     boundary_conditions: dict = None,
-):
+) -> Domain:
 
     return Domain(
         atoms=atoms,
