@@ -13,77 +13,83 @@ class Atom:
 
     def __init__(
         self,
-        id: int = 0,
-        element: str = "H",
+        atom_id: int = 0,
+        element: str = "Nu",
         position: np.ndarray = np.zeros(shape=(1, 3)),
         velocity: np.ndarray = np.zeros(shape=(1, 3)),
         magnetic_moment: np.ndarray = np.zeros(shape=(1, 3)),
     ):
-        self.id = id
-        self.element = element
-        self.position = position
-        self.velocity = velocity
-        self.magnetic_moment = magnetic_moment
-        return
+        self._id = atom_id
+        self._element = element
+        self._position = position
+        self._velocity = velocity
+        self._magnetic_moment = magnetic_moment
 
-    def set_id(self, new_id: int = 0):
+    @property
+    def id(self):
+        return self._id
+
+    @id.setter
+    def id(self, new_id: int = 0):
         """
-                Changes or assigns a new atom ID to an atom.
+        Changes or assigns a new atom ID to an atom.
         :param new_id: new atom id
         :return: none
         """
-        self.id = new_id
-        return self
+        self._id = new_id
 
-    def set_element(self, new_element: str = "H"):
+    @property
+    def element(self):
+        return self._element
+
+    @element.setter
+    def element(self, new_element: str = "Nu"):
         """
         Changes chemical element of atom
         :param new_element: new element
         :return: none
         """
-        self.element = new_element
-        return
+        self._element = new_element
 
-    def set_position(self, new_position: np.ndarray = np.zeros(shape=(1, 3))):
+    @property
+    def position(self):
+        return self._position
+
+    @position.setter
+    def position(self, new_position: np.ndarray = np.zeros(shape=(1, 3))):
         """
                 Changes or updates atomic position to new specified atomic position.
         :param new_pos: new atomic position
         :return: none
         """
-        self.position = new_position
-        return
+        self._position = new_position
 
-    def displace(self, displacement: np.ndarray = np.zeros(shape=(1, 3))):
-        """
-        Displace an atom by certain values. Default is (0,0,0)
-        :param displacement: Displacement vector to be applied to atom
-        :return: none
-        """
-        new_position = self.position + displacement
-        return self.set_position(new_position)
+    @property
+    def velocity(self):
+        return self._velocity
 
-    def set_velocity(self, new_velocity: np.ndarray = np.zeros(shape=(1, 3))):
-        self.velocity = new_velocity
-        return
+    @velocity.setter
+    def velocity(self, new_velocity: np.ndarray = np.zeros(shape=(1, 3))):
+        self._velocity = new_velocity
 
-    def accelerate(self, jolt: np.ndarray = np.zeros(shape=(1, 3))):
-        new_velocity = self.velocity + jolt
-        return self.set_velocity(new_velocity)
+    @property
+    def magnetic_moment(self):
+        return self._magnetic_moment
 
-    def set_magmom(self, new_magnetic_moment: np.ndarray = np.zeros(shape=(1, 3))):
-        self.magnetic_moment = new_magnetic_moment
-        return
+    @magnetic_moment.setter
+    def magnetic_moment(self, new_magnetic_moment: np.ndarray = np.zeros(shape=(1, 3))):
+        self._magnetic_moment = new_magnetic_moment
 
 
 def create(
-    id: int = 0,
-    element: str = "H",
+    atom_id: int = 0,
+    element: str = "Nu",
     position: np.ndarray = np.zeros(shape=(1, 3)),
     velocity: np.ndarray = np.zeros(shape=(1, 3)),
     magnetic_moment: np.ndarray = np.zeros(shape=(1, 3)),
 ) -> Atom:
     return Atom(
-        id=id,
+        atom_id=atom_id,
         element=element,
         position=position,
         velocity=velocity,
@@ -102,5 +108,5 @@ def displace_and_add(
         atom.velocity,
         atom.magnetic_moment,
     )
-    new_atom.displace(displacement)
+    new_atom.position += displacement
     return new_atom

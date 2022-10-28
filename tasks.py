@@ -37,4 +37,4 @@ def format(c, fix=False, diff=False):
 
 @task
 def test(c):
-    c.run(f"pytest", echo=True, pty=True)
+    c.run("pytest", echo=True, pty=True)

@@ -35,10 +35,10 @@ class Lattice:
 
 
 def create(
-        x_vector: np.ndarray = np.zeros(shape=(1, 3)),
-        y_vector: np.ndarray = np.zeros(shape=(1, 3)),
-        z_vector: np.ndarray = np.zeros(shape=(1, 3)),
-        basis_atoms: List[Atom] = None,
+    x_vector: np.ndarray = np.zeros(shape=(1, 3)),
+    y_vector: np.ndarray = np.zeros(shape=(1, 3)),
+    z_vector: np.ndarray = np.zeros(shape=(1, 3)),
+    basis_atoms: List[Atom] = None,
 ) -> Lattice:
     return Lattice(
         x_vector,
@@ -46,4 +46,3 @@ def create(
         z_vector,
         basis_atoms,
     )
-
