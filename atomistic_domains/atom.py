@@ -1,3 +1,8 @@
+from hashlib import sha256
+import random
+import time
+from typing import Optional, Union
+
 import numpy as np
 
 
@@ -13,7 +18,7 @@ class Atom:
 
     def __init__(
         self,
-        atom_id: int = 0,
+        atom_id: str = '0',
         element: str = "Nu",
         position: np.ndarray = np.zeros(shape=(1, 3)),
         velocity: np.ndarray = np.zeros(shape=(1, 3)),
@@ -30,7 +35,7 @@ class Atom:
         return self._id
 
     @id.setter
-    def id(self, new_id: int = 0):
+    def id(self, new_id: Union[str, int] = '0'):
         """
         Changes or assigns a new atom ID to an atom.
         :param new_id: new atom id
@@ -82,12 +87,15 @@ class Atom:
 
 
 def create(
-    atom_id: int = 0,
+    *,
+    atom_id: Optional[Union[int, str]] = None,
     element: str = "Nu",
     position: np.ndarray = np.zeros(shape=(1, 3)),
     velocity: np.ndarray = np.zeros(shape=(1, 3)),
     magnetic_moment: np.ndarray = np.zeros(shape=(1, 3)),
 ) -> Atom:
+    if atom_id is None:
+        atom_id = sha256(str(time.time() * random.random()).encode()).hexdigest()
     return Atom(
         atom_id=atom_id,
         element=element,
@@ -102,11 +110,10 @@ def displace_and_add(
     displacement: np.ndarray = np.zeros(shape=(1, 3)),
 ) -> Atom:
     new_atom = create(
-        atom.id,
-        atom.element,
-        atom.position,
-        atom.velocity,
-        atom.magnetic_moment,
+        element=atom.element,
+        position=atom.position,
+        velocity=atom.velocity,
+        magnetic_moment=atom.magnetic_moment,
     )
     new_atom.position += displacement
     return new_atom
