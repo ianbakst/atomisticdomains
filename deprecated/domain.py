@@ -317,7 +317,7 @@ class Domain:
 		self.box[2, 0] = -cut_z + origin[2]
 		self.box[2, 1] = cut_z + origin[2]
 		return
-
+	"""
 	def mirror(self,plane):
 		"""
 		Mirrors a domain about a plane and adds it to the original domain
@@ -481,7 +481,7 @@ class Domain:
 		elif sx==3:
 			pass
 		else:
-			print 'x-direction vector is nonsensical'
+			print('x-direction vector is nonsensical')
 			return (0)
 
 		sz=len(z)
@@ -490,7 +490,7 @@ class Domain:
 		elif sz==3:
 			pass
 		else:
-			print 'z-direction vector is nonsensical'
+			print('z-direction vector is nonsensical')
 			return (0)
 
 		sl=len(l)
@@ -501,7 +501,7 @@ class Domain:
 		elif sl==3:
 			pass
 		else:
-			print 'line-direction vector is nonsensical'
+			print('line-direction vector is nonsensical')
 			return (0)
 
 		sp=len(p)
@@ -512,7 +512,7 @@ class Domain:
 		elif sp==3:
 			pass
 		else:
-			print 'dislocation plane is nonsensical'
+			print('dislocation plane is nonsensical')
 			return (0)
 
 		#b=b*10**-10
@@ -673,18 +673,18 @@ class Domain:
 		if lid==la[0] or lid==0:
 			pass
 		else:
-			print 'WARNING: Inappropriate atom ID specification. New atom IDs will be assigned.'
+			print('WARNING: Inappropriate atom ID specification. New atom IDs will be assigned.')
 		cnt=0
 		dup=0
 		for i in range(int(m[0])):
-			print 'i is %d \n' %(i)
+			print('i is %d \n' %(i))
 			dx=i*box[0]
 			for j in range(int(m[1])):
-				print 'j is %d \n' %(j)
+				print('j is %d \n' %(j))
 				dy=j*box[1]
 				for k in range(int(m[2])):
-					print 'k is %d \n' %(k)
-					print dup
+					print('k is %d \n' %(k))
+					print(dup)
 					dz=k*box[2]
 					for l in range(la[0]):
 						B[cnt,0]=A[l,0]+dx

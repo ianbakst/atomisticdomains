@@ -88,7 +88,7 @@ class Lattice:
         cosa = np.dot(self.x1_vector, self.x2_vector) / self.x1_length / self.x2_length
         cosb = np.dot(self.x1_vector, self.x3_vector) / self.x1_length / self.x3_length
         cosg = np.dot(self.x3_vector, self.x2_vector) / self.x3_length / self.x2_length
-        return abc * sqrt(1 - cosa ** 2 - cosb ** 2 - cosg ** 2 + 2 * cosa * cosb * cosg)
+        return abc * sqrt(1 - cosa**2 - cosb**2 - cosg**2 + 2 * cosa * cosb * cosg)
 
 
 def create(
@@ -108,7 +108,9 @@ def create(
 
 
 class BCC(Lattice):
-    def __init__(self, side_length: float = 1, atom1: Optional[Atom] = None, atom2: Optional[Atom] = None):
+    def __init__(
+        self, side_length: float = 1, atom1: Optional[Atom] = None, atom2: Optional[Atom] = None
+    ):
         x1 = side_length * np.array([1, 0, 0])
         x2 = side_length * np.array([0, 1, 0])
         x3 = side_length * np.array([0, 0, 1])

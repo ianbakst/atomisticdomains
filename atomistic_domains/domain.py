@@ -1,6 +1,7 @@
 import numpy as np
-from typing import List
+from typing import List, Optional
 from atomistic_domains.atom import Atom, displace_and_add
+from atomistic_domains.boundary import BoundaryConditions
 from atomistic_domains.lattice import Lattice
 
 
@@ -22,29 +23,24 @@ class Domain:
 
     def __init__(
         self,
-        atoms: List[Atom] = None,
-        x_vector: np.ndarray = np.zeros(shape=(1, 3)),
-        y_vector: np.ndarray = np.zeros(shape=(1, 3)),
-        z_vector: np.ndarray = np.zeros(shape=(1, 3)),
-        boundary_conditions: dict = None,
+        *,
+        atoms: Optional[List[Atom]] = None,
+        x1_vector: np.ndarray = np.zeros(shape=(1, 3)),
+        x2_vector: np.ndarray = np.zeros(shape=(1, 3)),
+        x3_vector: np.ndarray = np.zeros(shape=(1, 3)),
+        boundary_conditions: Optional[BoundaryConditions] = None,
     ):
-        if not atoms:
+        if atoms is None:
             self.atoms = []
         else:
             self.atoms = atoms
-
-        self.x_vector = x_vector
-        self.y_vector = y_vector
-        self.z_vector = z_vector
-        if not boundary_conditions:
-            self.boundary_conditions = {
-                "x_boundary": "p",
-                "y_boundary": "p",
-                "z_boundary": "p",
-            }
+        self._x1_vector = x1_vector
+        self._x2_vector = x2_vector
+        self._x3_vector = x3_vector
+        if boundary_conditions is None:
+            self.boundary_conditions = BoundaryConditions(1, 1, 1)
         else:
             self.boundary_conditions = boundary_conditions
-        return
 
 
 def create_from_lattice(
@@ -58,31 +54,32 @@ def create_from_lattice(
     for i in range(nx):
         for j in range(ny):
             for k in range(nz):
-                displacement = i * lattice.x_vector + j * lattice.y_vector + k * lattice.z_vector
+                displacement = (
+                    i * lattice.x1_vector + j * lattice.x2_vector + k * lattice.x3_vector
+                )
                 atoms.extend(
                     [displace_and_add(atom, displacement) for atom in lattice.basis_atoms]
                 )
     return create(
         atoms=atoms,
-        x_vector=nx * lattice.x_vector,
-        y_vector=ny * lattice.y_vector,
-        z_vector=nz * lattice.z_vector,
+        x1_vector=nx * lattice.x1_vector,
+        x2_vector=ny * lattice.x2_vector,
+        x3_vector=nz * lattice.x3_vector,
         boundary_conditions=boundary_conditions,
     )
 
 
 def create(
     atoms: List[Atom] = None,
-    x_vector: np.ndarray = np.zeros(shape=(1, 3)),
-    y_vector: np.ndarray = np.zeros(shape=(1, 3)),
-    z_vector: np.ndarray = np.zeros(shape=(1, 3)),
-    boundary_conditions: dict = None,
+    x1_vector: np.ndarray = np.zeros(shape=(1, 3)),
+    x2_vector: np.ndarray = np.zeros(shape=(1, 3)),
+    x3_vector: np.ndarray = np.zeros(shape=(1, 3)),
+    boundary_conditions: Optional[BoundaryConditions] = None,
 ):
-
     return Domain(
         atoms=atoms,
-        x_vector=x_vector,
-        y_vector=y_vector,
-        z_vector=z_vector,
+        x1_vector=x1_vector,
+        x2_vector=x2_vector,
+        x3_vector=x3_vector,
         boundary_conditions=boundary_conditions,
     )

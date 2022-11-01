@@ -18,7 +18,7 @@ class Atom:
 
     def __init__(
         self,
-        atom_id: str = '0',
+        atom_id: str = "0",
         element: str = "Nu",
         position: np.ndarray = np.zeros(shape=(1, 3)),
         velocity: np.ndarray = np.zeros(shape=(1, 3)),
@@ -35,7 +35,7 @@ class Atom:
         return self._id
 
     @id.setter
-    def id(self, new_id: Union[str, int] = '0'):
+    def id(self, new_id: Union[str, int] = "0"):
         """
         Changes or assigns a new atom ID to an atom.
         :param new_id: new atom id
