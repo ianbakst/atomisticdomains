@@ -42,13 +42,37 @@ class Domain:
         else:
             self.boundary_conditions = boundary_conditions
 
+    @property
+    def x1_vector(self):
+        return self._x1_vector
+
+    @x1_vector.setter
+    def x1_vector(self, new_vector):
+        self._x1_vector = new_vector
+
+    @property
+    def x2_vector(self):
+        return self._x1_vector
+
+    @x2_vector.setter
+    def x2_vector(self, new_vector):
+        self._x2_vector = new_vector
+
+    @property
+    def x3_vector(self):
+        return self._x3_vector
+
+    @x3_vector.setter
+    def x3_vector(self, new_vector):
+        self._x3_vector = new_vector
+
 
 def create_from_lattice(
     lattice: Lattice,
     nx: int = 1,
     ny: int = 1,
     nz: int = 1,
-    boundary_conditions: dict = None,
+    boundary_conditions: Optional[BoundaryConditions] = None,
 ):
     atoms = []
     for i in range(nx):

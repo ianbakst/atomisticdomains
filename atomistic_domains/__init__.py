@@ -5,7 +5,7 @@ from .atom import create as create_atom
 from .lattice import Lattice
 from .lattice import create as create_lattice
 from .domain import Domain
-import atomistic_domains.domain as domain
+from .plane import Plane
 
 
 __all__ = [
@@ -18,4 +18,5 @@ __all__ = [
     "domain",
     "Domain",
     "Lattice",
+    "Plane",
 ]
